@@ -1,0 +1,4 @@
+# The ApnaAI model is built from scratch in PyTorch. No LLM / third-party APIs.
+torch>=2.0
+numpy>=1.24
+regex>=2023.0
