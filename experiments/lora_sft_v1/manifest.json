@@ -1,0 +1,70 @@
+{
+  "seed": 20260918,
+  "created_utc": "2026-09-18T13:57:02.019331+00:00",
+  "sources": [
+    {
+      "id": "databricks/databricks-dolly-15k",
+      "revision": "bdd27f4d94b9c1f951818a7da7fd7aeea5dbff1a",
+      "file": "databricks-dolly-15k.jsonl",
+      "license": "cc-by-sa-3.0",
+      "card_sha256": "db06c60090a11b20e79d1933b2f316f781605f07761ff2ae2795d6523e3e960b",
+      "url": "https://huggingface.co/datasets/databricks/databricks-dolly-15k/resolve/bdd27f4d94b9c1f951818a7da7fd7aeea5dbff1a/databricks-dolly-15k.jsonl",
+      "downloaded_sha256": "2df9083338b4abd6bceb5635764dab5d833b393b55759dffb0959b6fcbf794ec",
+      "bytes": 13085339
+    },
+    {
+      "id": "OpenAssistant/oasst1",
+      "revision": "fdf72ae0827c1cda404aff25b6603abec9e3399b",
+      "file": "2023-04-12_oasst_ready.messages.jsonl.gz",
+      "license": "apache-2.0",
+      "card_sha256": "68483ac2fcc2f3f7779f453352363827678070ef35b6d746ccb2ca6958540fff",
+      "license_file_sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+      "url": "https://huggingface.co/datasets/OpenAssistant/oasst1/resolve/fdf72ae0827c1cda404aff25b6603abec9e3399b/2023-04-12_oasst_ready.messages.jsonl.gz",
+      "downloaded_sha256": "286a6e9a5a413b3272ae9c0b5a20d327983dea1c24342ae28cb244a6da65185c",
+      "bytes": 34196309
+    }
+  ],
+  "filters": {
+    "databricks/databricks-dolly-15k:considered": 13114,
+    "databricks/databricks-dolly-15k:rejected:token_budget_complete_answer": 2864,
+    "databricks/databricks-dolly-15k:accepted_before_cap": 6922,
+    "databricks/databricks-dolly-15k:rejected:length": 3151,
+    "databricks/databricks-dolly-15k:rejected:non_ascii_language_heuristic": 39,
+    "databricks/databricks-dolly-15k:rejected:heldout_prompt_or_topic": 28,
+    "databricks/databricks-dolly-15k:rejected:duplicate": 91,
+    "databricks/databricks-dolly-15k:rejected:format_or_boilerplate": 16,
+    "databricks/databricks-dolly-15k:rejected:unbalanced_code_or_persona": 3,
+    "OpenAssistant/oasst1:considered": 2445,
+    "OpenAssistant/oasst1:rejected:length": 1629,
+    "OpenAssistant/oasst1:accepted_before_cap": 336,
+    "OpenAssistant/oasst1:rejected:token_budget_complete_answer": 397,
+    "OpenAssistant/oasst1:rejected:format_or_boilerplate": 35,
+    "OpenAssistant/oasst1:rejected:heldout_prompt_or_topic": 17,
+    "OpenAssistant/oasst1:rejected:unbalanced_code_or_persona": 18,
+    "OpenAssistant/oasst1:rejected:duplicate": 12,
+    "OpenAssistant/oasst1:rejected:non_ascii_language_heuristic": 1
+  },
+  "counts": {
+    "train:databricks/databricks-dolly-15k": 700,
+    "validation:databricks/databricks-dolly-15k": 32,
+    "train:OpenAssistant/oasst1": 305,
+    "validation:OpenAssistant/oasst1": 31
+  },
+  "tokenizer_sha256": "0390e89172d1d21606c02377233803a8ad87ecdb12e145bc71d4a32a3171fd14",
+  "fixed_prompts": [
+    "hii",
+    "Hello! How are you?",
+    "What is 5 - 2?",
+    "What is machine learning?",
+    "Write a Python function to reverse a string."
+  ],
+  "split_rule": "SHA256(seed:normalized_prompt_hash) modulo100 <10 => validation; capped per source after split",
+  "max_total_tokens": 192,
+  "max_answer_tokens_including_end": 112,
+  "long_prompt_policy": "reject after answer-preserving encoding; never cut an answer",
+  "leakage_note": "Exact normalized prompts and specified topic variants excluded from new pool. Historical training data unavailable; no historical-unseen claim.",
+  "files": {
+    "train": "93d97a0683e32f0883e875ff58b9765d3d2a6febd9c24db721de30b0b57f338f",
+    "validation": "a881ecf78c299c724a97c4f29da514ab5ec4864f6646166841a8911e2ba9cddb"
+  }
+}

@@ -1,72 +1,190 @@
-# ApnaAI - a language model built entirely from scratch
+# Nisharo — A From-Scratch Language Model
 
-This is a small GPT-style language model implemented **from scratch in PyTorch**.
-There are **no third-party AI / LLM APIs** anywhere in this project - not for the
-tokenizer, not for the training data, and not for inference. Every part of the
-model is defined in plain Python in this folder and trained locally on this
-machine.
-
-## What is included
-
-| File | Purpose |
-|------|---------|
-| `tokenizer.py`  | Byte-level BPE tokenizer written from scratch. Learns its merges from the corpus. |
-| `model.py`      | The GPT transformer: embeddings, causal multi-head self-attention, MLP blocks, layer norm, LM head, sampling. |
-| `config.py`     | Model + training hyper-parameters. |
-| `prepare_data.py` | Cleans the local text corpus, trains the tokenizer, encodes to binary shards. |
-| `train.py`      | The training loop (AdamW, cosine LR schedule, gradient clipping, checkpointing). |
-| `generate.py`   | Load the trained checkpoint and generate text from a prompt. |
-| `serve.py`      | Tiny local HTTP inference server (standard library only). |
-| `data/`         | Public-domain English text (Project Gutenberg) - the training corpus. |
-| `checkpoints/`  | Saved model weights (`model.pt`). |
-
-## How it was built
-
-1. **Corpus** - several public-domain English books plus TinyShakespeare
-   (~5.4M characters) downloaded over plain HTTP. No API involved.
-2. **Tokenizer** - a byte-pair-encoding tokenizer trained from scratch on that
-   corpus (vocabulary of 8,000 tokens).
-3. **Model** - a ~14M parameter GPT (6 layers, 6 heads, 384-dim embeddings,
-   256-token context).
-4. **Training** - trained on CPU using PyTorch's MKL backend (16 threads).
-
-## Training Results
-
-| Iter | Train Loss | Val Loss | Time |
-|------|-----------|---------|------|
-| 0 | 9.06 | 9.06 | 1 min |
-| 500 | 4.92 | 5.04 | 22 min |
-| 1000 | 4.37 | 4.65 | 42 min |
-| 1500 | 4.09 | 4.47 | 60 min |
-| 2000 | 3.89 | 4.40 | 79 min |
-| 2500 | 3.81 | 4.35 | 98 min |
-| **3000** | **3.73** | **4.35** | **116 min** |
-
-## Reproduce it
-
-```bash
-pip install -r requirements.txt
-python prepare_data.py     # build tokenizer + train/val shards
-python train.py            # train the model (writes checkpoints/model.pt)
-python generate.py --prompt "It was a bright morning" --tokens 200
-python serve.py            # optional: local HTTP inference server
-```
+**Nisharo** is a GPT-style language model built entirely from scratch in PyTorch. No pretrained weights, no external AI APIs, no Llama — every component is written and trained from the ground up.
 
 ## Architecture
 
+| Component | Details |
+|-----------|---------|
+| Type | Decoder-only Transformer (GPT-style) |
+| Parameters | **13.82M** |
+| Layers | 6 |
+| Attention Heads | 6 |
+| Embedding Dim | 384 |
+| Context Length | 256 tokens |
+| Vocabulary | 8,000 BPE tokens |
+| Tokenizer | Custom byte-level BPE (from scratch) |
+
+## What's Built From Scratch
+
+- **Tokenizer** (`tokenizer.py`) — Byte-level BPE tokenizer trained on the corpus, no HuggingFace tokenizers
+- **Model** (`model.py`) — Causal self-attention, MLP blocks, positional embeddings, weight tying, all hand-written
+- **Training** (`train.py`) — Cosine LR schedule, gradient clipping, AdamW, checkpoint saving
+- **Data Pipeline** (`prepare_data.py`) — Corpus loading, Gutenberg cleanup, tokenization, train/val split
+- **Instruction Fine-Tuning** (`fine_tune.py`, `sft_core.py`) — SFT with assistant-only loss masking
+- **Persona Training** (`experiments/persona_v1/`) — Identity, greetings, feelings, capabilities
+- **Inference Server** (`serve.py`) — HTTP API for chat and generation
+- **Generation** (`generate.py`, `generate_chat.py`) — Sampling with temperature and top-k
+
+## Project Structure
+
 ```
-GPT (14M parameters)
-  - Token Embedding (8000 x 384)
-  - Positional Embedding (256 x 384)
-  - 6x Transformer Block:
-      - LayerNorm -> Multi-Head Causal Self-Attention (6 heads)
-      - LayerNorm -> MLP (384 -> 1536 -> 384, GELU)
-  - LayerNorm
-  - LM Head (384 -> 8000, weight-tied)
+Nisharo/
+├── model.py                 # GPT transformer (from scratch)
+├── config.py                # Model and training hyperparameters
+├── tokenizer.py             # Byte-level BPE tokenizer (from scratch)
+├── train.py                 # Pre-training on English literature corpus
+├── prepare_data.py          # Corpus → tokenizer + binary shards
+├── fine_tune.py             # Instruction fine-tuning (OpenHermes streaming)
+├── sft_core.py              # SFT utilities, LoRA, evaluation
+├── prepare_sft.py           # Dataset download, filtering, split freezing
+├── serve.py                 # HTTP inference server (chat + generation)
+├── generate.py              # CLI text generation (base model)
+├── generate_chat.py         # CLI instruction chat (fine-tuned model)
+├── requirements.txt         # Dependencies (torch, numpy, regex, requests)
+├── data/
+│   └── tokenizer.json       # Trained BPE merge rules (8K vocab)
+├── checkpoints/             # Model weights (not in repo — train locally)
+│   ├── model.pt             # Base pre-trained checkpoint
+│   ├── model_finetuned.pt   # Instruction fine-tuned checkpoint
+│   └── model_persona.pt     # Persona-tuned checkpoint (latest)
+└── experiments/
+    ├── persona_v1/          # Persona/identity fine-tuning experiment
+    │   ├── persona_data.py  # Dataset generator (785 curated examples)
+    │   ├── train_persona.py # Training script
+    │   ├── persona.jsonl    # Generated persona dataset
+    │   └── results.json     # Training metrics and eval results
+    └── lora_sft_v1/         # LoRA SFT experiment (Dolly + OASST1)
+        ├── EXPERIMENT.md    # Full experiment documentation
+        ├── config.json      # Experiment configuration
+        ├── results.json     # Training metrics
+        └── train.jsonl      # Filtered instruction dataset (1005 examples)
 ```
 
-## Next Steps
+## Training Pipeline
 
-- **Instruction Fine-tuning**: Train on Q&A pairs so the model answers questions instead of just completing text.
-- **More Data**: Add more English text corpora for better language understanding.
-- **Scale Up**: With GPU access, increase model size (more layers, wider embeddings).
+### 1. Pre-Training (Base Model)
+
+Trained on ~5.5M characters of classic English literature (Shakespeare, Sherlock Holmes, Pride and Prejudice, Moby Dick, Frankenstein, Alice in Wonderland, etc.):
+
+```bash
+# Download corpus (Project Gutenberg public domain texts)
+# Place .txt files in data/
+
+# Build tokenizer and binary data
+python prepare_data.py
+
+# Train the base model (~50 min on CPU)
+python train.py
+# → checkpoints/model.pt
+```
+
+### 2. Instruction Fine-Tuning
+
+Fine-tuned on curated Q&A data from OpenHermes-2.5 (streamed, not bulk downloaded):
+
+```bash
+python fine_tune.py
+# → checkpoints/model_finetuned.pt
+```
+
+### 3. Persona Fine-Tuning (Current Best)
+
+Added 785 curated greeting/identity/feelings/capabilities examples + 800 instruction examples for retention:
+
+```bash
+# Generate persona dataset
+python experiments/persona_v1/persona_data.py
+
+# Fine-tune from instruction checkpoint
+python experiments/persona_v1/train_persona.py
+# → checkpoints/model_persona.pt
+```
+
+## Running the Model
+
+### HTTP Server
+
+```bash
+python serve.py
+# Serves on http://127.0.0.1:8008
+```
+
+**Endpoints:**
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/chat` | POST | Instruction-formatted chat |
+| `/generate` | POST | Raw text generation |
+| `/health` | GET | Model info and status |
+
+**Example:**
+
+```bash
+curl -X POST http://127.0.0.1:8008/chat \
+  -H 'Content-Type: application/json' \
+  -d '{"message": "Hi", "temperature": 0.7}'
+
+# → {"message": "Hi", "response": "Hello there! I'm Nisharo, your AI assistant. How can I assist you today?"}
+```
+
+### CLI Chat
+
+```bash
+python generate_chat.py --prompt "What is gravity?" --interactive
+```
+
+### CLI Generation (Base Model)
+
+```bash
+python generate.py --prompt "Once upon a time" --tokens 200
+```
+
+## Current Capabilities
+
+After persona fine-tuning, the model handles:
+
+| Category | Example | Status |
+|----------|---------|--------|
+| Greetings | "Hi", "Hello", "Hey there" | ✅ Works well |
+| Identity | "Who are you?", "What's your name?" | ✅ Works well |
+| Feelings | "Do you have feelings?", "How are you?" | ✅ Works well |
+| Capabilities | "What can you do?", "Are you smart?" | ✅ Works well |
+| Simple Facts | "What is 5 - 2?", "Capital of France?" | ✅ Works well |
+| Thanks/Goodbye | "Thank you", "Bye" | ✅ Works well |
+| Emotional Support | "I'm sad", "I feel lonely" | ✅ Works well |
+| Complex Q&A | "What is machine learning?" | ⚠️ Limited |
+| Coding | "Write a Python function..." | ⚠️ Limited |
+
+**Honest Limitations:** This is a 13.82M parameter model trained on CPU. It excels at conversational patterns it has been trained on but struggles with complex factual questions and code generation. Scaling up model size, training data, and compute would improve these areas.
+
+## Requirements
+
+```
+torch>=2.0
+numpy>=1.24
+regex>=2023.0
+requests>=2.31
+```
+
+```bash
+# CPU-only install
+pip install torch --index-url https://download.pytorch.org/whl/cpu
+pip install numpy regex requests
+```
+
+## Key Design Decisions
+
+1. **From Scratch** — Every line of model code, tokenizer, and training loop is written here. No pretrained weights are loaded.
+2. **BPE Tokenizer** — Custom byte-level BPE trained on the same corpus, not borrowed from GPT-2/HuggingFace.
+3. **Assistant-Only Loss** — During SFT, loss is computed only on assistant tokens (not the user prompt), improving instruction following.
+4. **Persona Data** — Hand-authored greeting/identity/feelings data, not generated by another AI.
+5. **CPU Friendly** — Designed to train on commodity hardware without a GPU. The base model trains in ~50 minutes on a 2-core CPU.
+
+## License
+
+MIT
+
+## Author
+
+[@theaialgorithm](https://github.com/theaialgorithm)

@@ -1,0 +1,220 @@
+{
+  "finished_utc": "2026-09-18T13:59:45.293079+00:00",
+  "config": {
+    "seed": 20260918,
+    "device": "cpu",
+    "threads": 2,
+    "rank": 8,
+    "alpha": 16,
+    "lr": 0.0001,
+    "weight_decay": 0.01,
+    "micro_batch": 4,
+    "effective_batch": 8,
+    "max_steps": 126,
+    "train_wall_limit_seconds": 360,
+    "benchmark_step_seconds": [
+      0.9701920229999814,
+      0.742169123000167,
+      0.5912819719999334,
+      0.8091740610000215,
+      0.6968227729998944,
+      0.6716365929999029,
+      0.7042806430001747
+    ],
+    "steady_step_seconds": 0.702560860833349,
+    "estimated_train_seconds": 88.52266846500197,
+    "targets": [
+      "transformer.h.0.attn.c_attn",
+      "transformer.h.0.attn.c_proj",
+      "transformer.h.0.mlp.c_fc",
+      "transformer.h.0.mlp.c_proj",
+      "transformer.h.1.attn.c_attn",
+      "transformer.h.1.attn.c_proj",
+      "transformer.h.1.mlp.c_fc",
+      "transformer.h.1.mlp.c_proj",
+      "transformer.h.2.attn.c_attn",
+      "transformer.h.2.attn.c_proj",
+      "transformer.h.2.mlp.c_fc",
+      "transformer.h.2.mlp.c_proj",
+      "transformer.h.3.attn.c_attn",
+      "transformer.h.3.attn.c_proj",
+      "transformer.h.3.mlp.c_fc",
+      "transformer.h.3.mlp.c_proj",
+      "transformer.h.4.attn.c_attn",
+      "transformer.h.4.attn.c_proj",
+      "transformer.h.4.mlp.c_fc",
+      "transformer.h.4.mlp.c_proj",
+      "transformer.h.5.attn.c_attn",
+      "transformer.h.5.attn.c_proj",
+      "transformer.h.5.mlp.c_fc",
+      "transformer.h.5.mlp.c_proj"
+    ],
+    "base_parameters": 13817856,
+    "trainable_parameters": 294912,
+    "source_checkpoint": "checkpoints/model_finetuned.pt",
+    "source_checkpoint_sha256": "964a76a1c309489f4b0863f90f0a2082103abb5a7ffe2fe92ac2a2ec3d03fffa",
+    "pretraining_checkpoint_sha256": "6089b9e65ced53373a8cf0cfedab4c5bce19104cdef8e3d1ff91ae0b5fb64e9d",
+    "source_metadata": {
+      "model_config": {
+        "vocab_size": 8000,
+        "block_size": 256,
+        "n_layer": 6,
+        "n_head": 6,
+        "n_embd": 384,
+        "dropout": 0.1,
+        "bias": true
+      },
+      "iter": 1400,
+      "val_loss": 2.518130781650543,
+      "type": "instruction-finetuned"
+    },
+    "manifest_sha256": "81383550601b1aca8d932462c9c03f77ae2940cb9657d979b3091216578f0985",
+    "tokenizer_sha256": "0390e89172d1d21606c02377233803a8ad87ecdb12e145bc71d4a32a3171fd14",
+    "decoding": {
+      "method": "greedy_argmax",
+      "max_new_tokens": 80,
+      "stop_strings": [
+        "<|end|>",
+        "<|user|>"
+      ]
+    },
+    "selection": "Final bounded step, not selected using test responses. No promotion."
+  },
+  "completed_steps": 126,
+  "training_seconds": 91.01489144100015,
+  "supervised_training_tokens": 54330,
+  "examples_seen": 1005,
+  "baseline": {
+    "metrics": {
+      "assistant_token_nll": 4.541893381404036,
+      "assistant_token_accuracy": 0.2541939152686949,
+      "supervised_tokens": 3517,
+      "examples": 63
+    },
+    "replies": [
+      {
+        "prompt": "hii",
+        "raw_completion": " Apple of a cultural cultural cultural cultural cultural cultural cultural cultural cultural cultural cultural cultural cultural cultural cultural cultural cultural cultural cultural cultural cultural cultural cultural cultural cultural",
+        "response": "Apple of a cultural cultural cultural cultural cultural cultural cultural cultural cultural cultural cultural cultural cultural cultural cultural cultural cultural cultural cultural cultural cultural cultural cultural cultural cultural",
+        "generated_tokens": 80
+      },
+      {
+        "prompt": "Hello! How are you?",
+        "raw_completion": " Implement a java. The answer is a simple and a joke about the text. The answer is a simple that you're a joke about the text.\n\nHere's the reasoning:\n\n1. The reasoning behind this:\n1.\n1. The answer is a simple text.\n2. The answer is a simple",
+        "response": "Implement a java. The answer is a simple and a joke about the text. The answer is a simple that you're a joke about the text.\n\nHere's the reasoning:\n\n1. The reasoning behind this:\n1.\n1. The answer is a simple text.\n2. The answer is a simple",
+        "generated_tokens": 80
+      },
+      {
+        "prompt": "What is 5 - 2?",
+        "raw_completion": " The answer is a simple and the number of people in the room. The total number of people are in the room, and the number of people are in the room. The total number of people are in the room is 30%.\n\nHere's the reasoning:\n\n1. We know that the number of people are in the room.\n2. We know that",
+        "response": "The answer is a simple and the number of people in the room. The total number of people are in the room, and the number of people are in the room. The total number of people are in the room is 30%.\n\nHere's the reasoning:\n\n1. We know that the number of people are in the room.\n2. We know that",
+        "generated_tokens": 80
+      },
+      {
+        "prompt": "What is machine learning?",
+        "raw_completion": " The answer is a simple and a simple JavaScript. The answer is a simple and a simple JavaScript. The program should be the user's question, which is the output of the user's question?\n\nAvailable to be the user's question.\nB. The input is a simple that is the",
+        "response": "The answer is a simple and a simple JavaScript. The answer is a simple and a simple JavaScript. The program should be the user's question, which is the output of the user's question?\n\nAvailable to be the user's question.\nB. The input is a simple that is the",
+        "generated_tokens": 80
+      },
+      {
+        "prompt": "Write a Python function to reverse a string.",
+        "raw_completion": " ````python\nimport java.io.io.io.io.Script\nimport java.util.util.Script.Script.Script\nimport java.util.Script.Script.Script\nimport java.util.Scri",
+        "response": "````python\nimport java.io.io.io.io.Script\nimport java.util.util.Script.Script.Script\nimport java.util.Script.Script.Script\nimport java.util.Scri",
+        "generated_tokens": 80
+      }
+    ]
+  },
+  "candidate": {
+    "metrics": {
+      "assistant_token_nll": 4.471241968275303,
+      "assistant_token_accuracy": 0.26187091270969576,
+      "supervised_tokens": 3517,
+      "examples": 63
+    },
+    "replies": [
+      {
+        "prompt": "hii",
+        "raw_completion": " Apple is a budget of a budget that is a significant of the culture. The culture is a significant of the culture, and the culture is a significant of the culture.<|end|>",
+        "response": "Apple is a budget of a budget that is a significant of the culture. The culture is a significant of the culture, and the culture is a significant of the culture.",
+        "generated_tokens": 58
+      },
+      {
+        "prompt": "Hello! How are you?",
+        "raw_completion": " I have a joke about the world. I have a joke about the world.<|end|>",
+        "response": "I have a joke about the world. I have a joke about the world.",
+        "generated_tokens": 23
+      },
+      {
+        "prompt": "What is 5 - 2?",
+        "raw_completion": " The factory is a significant of the equation of the equation of the equation is the number of the number of non-line in the number of non-line. The number of non-line is the number of non-n-n-n-n-n-n-n-n-n-n-n-n-n-n",
+        "response": "The factory is a significant of the equation of the equation of the equation is the number of the number of non-line in the number of non-line. The number of non-line is the number of non-n-n-n-n-n-n-n-n-n-n-n-n-n-n",
+        "generated_tokens": 80
+      },
+      {
+        "prompt": "What is machine learning?",
+        "raw_completion": " The first person is a simple and a person who is a simple and a person who is a simple and a person who is a simple and a person who is a simple and a person who is a simple and a person. The person is a simple and a person who is a simple and a person who is the most likely to be the most likely to be the most likely.<|end|",
+        "response": "The first person is a simple and a person who is a simple and a person who is a simple and a person who is a simple and a person who is a simple and a person who is a simple and a person. The person is a simple and a person who is a simple and a person who is the most likely to be the most likely to be the most likely.<|end|",
+        "generated_tokens": 80
+      },
+      {
+        "prompt": "Write a Python function to reverse a string.",
+        "raw_completion": " A Python script that uses a Python script that uses the user's text file, and returns a list of a text file.\n\n```python\npython\npython\npath = 0\n\t```\n\npython",
+        "response": "A Python script that uses a Python script that uses the user's text file, and returns a list of a text file.\n\n```python\npython\npython\npath = 0\n\t```\n\npython",
+        "generated_tokens": 80
+      }
+    ]
+  },
+  "merge_max_abs_logit_error": 1.1444091796875e-05,
+  "strict_reload_equal": true,
+  "original_checkpoint_hashes_unchanged": true,
+  "artifacts": {
+    "adapter_resume.pt": {
+      "sha256": "f6450480e1ce704b73f5c582fff38fe887b596cdd2b52848688fd17acf1b17d9",
+      "bytes": 3615982
+    },
+    "model_lora_sft_experimental.pt": {
+      "sha256": "c92cb7b3396bf45ab267c2f19e3f5d847e30a6086d895e59cb80d79ac53dfb73",
+      "bytes": 56878541
+    }
+  },
+  "serving_selection": "UNCHANGED; manual content review required; experimental only",
+  "content_review": {
+    "method": "Manual task-content rubric, not word overlap or HTTP status; five diagnostic prompts, not a general benchmark",
+    "baseline_passes": 0,
+    "candidate_passes": 0,
+    "total": 5,
+    "decision": "Experimental only; not promoted",
+    "items": [
+      {
+        "prompt": "hii",
+        "criterion": "Greeting acknowledgement",
+        "baseline": "Fail: unrelated, repetitive text; no greeting.",
+        "candidate": "Fail: unrelated budget/culture text; no greeting."
+      },
+      {
+        "prompt": "Hello! How are you?",
+        "criterion": "Relevant greeting response",
+        "baseline": "Fail: unrelated Java/joke text.",
+        "candidate": "Fail: repeats a joke statement; does not respond to the greeting."
+      },
+      {
+        "prompt": "What is 5 - 2?",
+        "criterion": "Correct subtraction: 3",
+        "baseline": "Fail: unrelated people-in-a-room narrative.",
+        "candidate": "Fail: unrelated equation narrative; no correct subtraction."
+      },
+      {
+        "prompt": "What is machine learning?",
+        "criterion": "ML: systems learn patterns from data",
+        "baseline": "Fail: JavaScript/user-question repetition, not a definition.",
+        "candidate": "Fail: person repetition, not a definition."
+      },
+      {
+        "prompt": "Write a Python function to reverse a string.",
+        "criterion": "Python function that returns the reversed input string",
+        "baseline": "Fail: malformed Java imports, no Python function.",
+        "candidate": "Fail: no function or reversal operation; unusable answer."
+      }
+    ]
+  }
+}

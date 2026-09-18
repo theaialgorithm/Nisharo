@@ -1,0 +1,42 @@
+# Model checkpoints (too large for Git; train locally)
+checkpoints/*.pt
+
+# Binary training data (regenerate with prepare_data.py)
+data/train.bin
+data/val.bin
+
+# Raw text corpus (download from Project Gutenberg)
+data/*.txt
+
+# Experiment artifacts (large / regenerable)
+experiments/lora_sft_v1/source/
+experiments/lora_sft_v1/*.pt
+experiments/lora_sft_v1/*.log
+experiments/lora_sft_v1/*.exit
+experiments/persona_v1/*.log
+experiments/persona_v1/*.exit
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.Python
+*.egg-info/
+
+# Environment
+.env
+.venv/
+venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Server logs
+serve.log

@@ -1,0 +1,41 @@
+{
+  "seed": 20260918,
+  "device": "cpu",
+  "threads": 2,
+  "rank": 8,
+  "alpha": 16,
+  "lr": 0.0001,
+  "weight_decay": 0.01,
+  "micro_batch": 4,
+  "effective_batch": 8,
+  "max_steps": 126,
+  "train_wall_limit_seconds": 360,
+  "benchmark_step_seconds": [
+    0.9702, 0.7422, 0.5913, 0.8092, 0.6968, 0.6716, 0.7043
+  ],
+  "steady_step_seconds": 0.7026,
+  "estimated_train_seconds": 88.52,
+  "targets": [
+    "transformer.h.0.attn.c_attn", "transformer.h.0.attn.c_proj",
+    "transformer.h.0.mlp.c_fc", "transformer.h.0.mlp.c_proj",
+    "transformer.h.1.attn.c_attn", "transformer.h.1.attn.c_proj",
+    "transformer.h.1.mlp.c_fc", "transformer.h.1.mlp.c_proj",
+    "transformer.h.2.attn.c_attn", "transformer.h.2.attn.c_proj",
+    "transformer.h.2.mlp.c_fc", "transformer.h.2.mlp.c_proj",
+    "transformer.h.3.attn.c_attn", "transformer.h.3.attn.c_proj",
+    "transformer.h.3.mlp.c_fc", "transformer.h.3.mlp.c_proj",
+    "transformer.h.4.attn.c_attn", "transformer.h.4.attn.c_proj",
+    "transformer.h.4.mlp.c_fc", "transformer.h.4.mlp.c_proj",
+    "transformer.h.5.attn.c_attn", "transformer.h.5.attn.c_proj",
+    "transformer.h.5.mlp.c_fc", "transformer.h.5.mlp.c_proj"
+  ],
+  "base_parameters": 13817856,
+  "trainable_parameters": 294912,
+  "source_checkpoint": "checkpoints/model_finetuned.pt",
+  "decoding": {
+    "method": "greedy_argmax",
+    "max_new_tokens": 80,
+    "stop_strings": ["<|end|>", "<|user|>"]
+  },
+  "selection": "Final bounded step, not selected using test responses. No promotion."
+}
