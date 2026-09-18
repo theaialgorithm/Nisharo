@@ -1,12 +1,12 @@
-"""Minimal local HTTP inference server for the trained ApnaAI model.
+"""Local HTTP inference server for ApnaAI instruction-finetuned model.
 
-Pure standard library (http.server) + the from-scratch model. No frameworks,
-no external APIs. Start it and POST prompts to get generated text.
+Loads the fine-tuned checkpoint and serves both raw generation and
+instruction-formatted chat endpoints.
 
-  python serve.py                      # listens on http://127.0.0.1:8008
-  curl -s -X POST http://127.0.0.1:8008/generate \
+  python serve.py                       # listens on http://127.0.0.1:8008
+  curl -s -X POST http://127.0.0.1:8008/chat \
        -H 'Content-Type: application/json' \
-       -d '{"prompt": "It was", "max_new_tokens": 120}'
+       -d '{"message": "What is gravity?"}'
 """
 import json
 import os
@@ -14,11 +14,50 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 import torch
 
-from generate import load_model, generate
+from model import GPT
+from config import ModelConfig
+from tokenizer import BPETokenizer
+from generate import generate
 
 torch.set_num_threads(min(16, os.cpu_count() or 8))
-MODEL, TOK, CKPT = load_model()
-print(f"Model loaded (iter {CKPT['iter']}, val loss {CKPT['val_loss']:.4f})")
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+
+# Load fine-tuned model if available, else base model
+CKPT_DIR = os.path.join(HERE, "checkpoints")
+FINETUNED = os.path.join(CKPT_DIR, "model_finetuned.pt")
+BASE = os.path.join(CKPT_DIR, "model.pt")
+
+ckpt_path = FINETUNED if os.path.exists(FINETUNED) else BASE
+print(f"Loading checkpoint: {os.path.basename(ckpt_path)}")
+
+ckpt = torch.load(ckpt_path, map_location="cpu", weights_only=False)
+CFG = ModelConfig()
+MODEL = GPT(CFG)
+MODEL.load_state_dict(ckpt["model"])
+MODEL.eval()
+
+TOK = BPETokenizer()
+TOK.load(os.path.join(HERE, "data", "tokenizer.json"))
+
+IS_FINETUNED = os.path.exists(FINETUNED) and ckpt_path == FINETUNED
+print(f"Model loaded | {'instruction-finetuned' if IS_FINETUNED else 'base'} | iter {ckpt.get('iter', '?')} | val loss {ckpt.get('val_loss', 0):.4f}")
+
+
+def chat_generate(message, max_tokens=200, temperature=0.7, top_k=50):
+    """Format as instruction prompt and extract assistant response."""
+    prompt = f"<|user|> {message}\n<|assistant|>"
+    full = generate(MODEL, TOK, prompt, max_new_tokens=max_tokens,
+                    temperature=temperature, top_k=top_k)
+    if "<|assistant|>" in full:
+        response = full.split("<|assistant|>")[-1]
+    else:
+        response = full[len(prompt):]
+    if "<|end|>" in response:
+        response = response.split("<|end|>")[0]
+    if "<|user|>" in response:
+        response = response.split("<|user|>")[0]
+    return response.strip()
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -31,39 +70,68 @@ class Handler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
+    def do_OPTIONS(self):
+        self.send_response(200)
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header("Access-Control-Allow-Methods", "POST, GET, OPTIONS")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type")
+        self.end_headers()
+
     def do_GET(self):
         if self.path == "/health":
-            self._send(200, {"status": "ok", "iter": CKPT["iter"]})
+            self._send(200, {
+                "status": "ok",
+                "model": "instruction-finetuned" if IS_FINETUNED else "base",
+                "iter": ckpt.get("iter", 0),
+                "val_loss": round(ckpt.get("val_loss", 0), 4)
+            })
         else:
             self._send(404, {"error": "not found"})
 
     def do_POST(self):
-        if self.path != "/generate":
-            self._send(404, {"error": "not found"})
-            return
         length = int(self.headers.get("Content-Length", 0))
         try:
             payload = json.loads(self.rfile.read(length) or b"{}")
         except json.JSONDecodeError:
             self._send(400, {"error": "invalid JSON"})
             return
-        prompt = payload.get("prompt", "")
-        text = generate(
-            MODEL, TOK, prompt,
-            max_new_tokens=int(payload.get("max_new_tokens", 150)),
-            temperature=float(payload.get("temperature", 0.8)),
-            top_k=int(payload.get("top_k", 40)),
-        )
-        self._send(200, {"prompt": prompt, "completion": text})
+
+        if self.path == "/chat":
+            message = payload.get("message", "")
+            if not message:
+                self._send(400, {"error": "message required"})
+                return
+            response = chat_generate(
+                message,
+                max_tokens=int(payload.get("max_tokens", 200)),
+                temperature=float(payload.get("temperature", 0.7)),
+                top_k=int(payload.get("top_k", 50)),
+            )
+            self._send(200, {"message": message, "response": response})
+
+        elif self.path == "/generate":
+            prompt = payload.get("prompt", "")
+            text = generate(
+                MODEL, TOK, prompt,
+                max_new_tokens=int(payload.get("max_new_tokens", 150)),
+                temperature=float(payload.get("temperature", 0.8)),
+                top_k=int(payload.get("top_k", 40)),
+            )
+            self._send(200, {"prompt": prompt, "completion": text})
+        else:
+            self._send(404, {"error": "not found"})
 
     def log_message(self, *args):
-        pass  # keep the console quiet
+        pass
 
 
 def main():
     port = int(os.environ.get("PORT", 8008))
     srv = ThreadingHTTPServer(("127.0.0.1", port), Handler)
-    print(f"Serving ApnaAI model on http://127.0.0.1:{port}")
+    print(f"Serving ApnaAI on http://127.0.0.1:{port}")
+    print(f"  POST /chat     - instruction chat")
+    print(f"  POST /generate - raw text generation")
+    print(f"  GET  /health   - model info")
     srv.serve_forever()
 
 
